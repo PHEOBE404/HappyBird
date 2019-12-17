@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>开心的小鸟与愤怒的弹幕</title>
+		<script src="modernizr.js"></script>
+		<script src="jquery-1.6.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("#note_two").hide();
+				$("#game_one").click(function() {
+					//					$("#canvasOne").toggle();
+					$("#set_one").show();
+					$("#note_one").show();
+					$("#note_two").hide();
+					$("#score").hide();
+					hard = false;
+					score=20;
+				});
+				$("#game_two").click(function() {
+					//					alert("启动困难模式");
+					hard = true;
+					score=0;
+					$("#set_one").show();
+					$("#note_two").show();
+					$("#score").show();
+					$("#note_one").hide();
+						bricks[0].color="#763453";
+							bricks[1].color="yellow";
+				});
+
+				
+
+				　　
+
+			});
+
+			window.addEventListener('load', eventWindowLoaded, false);
+			var shipImage;
+			var anglerange;
+			var anglenum;
+			var strengthnum;
+			var hit = 0;
+			var bricks = [{
+				color: "#763453",
+				hei: 50,
+				wid: 150,
+				y:240
+			}, {
+				color: "yellow",
+				hei: 40,
+				wid: 120,
+				y:350
+			}];
+			var hard = false;
+			var buttimer ;
+
+			function eventWindowLoaded() {
+
+				shipImage = new Image();
+				shipImage.src = "birds.jpg"
+				shipImage.onload = canvasApp;
+
+				anglerange = document.getElementById("angle");
+				strgrange = document.getElementById("strength");
+				anglenum = document.getElementById("angle").value;
+				strengthnum = document.getElementById("strength").value;
+
+			}
+
+			function canvasSupport() {
+				return Modernizr.canvas;
+			}
+
+			function canvasApp() {
+
+				if(!canvasSupport()) {
+					return;
+				}
+
+				function drawScreen() {
+					$("#cont_num").text(cont);
+					score=hit_0 *10+ hit_1*10;
+						$("#score").text(score);　　
+					context.setLineDash([1, 0])
+					context.fillStyle = '#FFFFFF';
+					context.fillRect(0, 0, theCanvas.width, theCanvas.height);
+					//Box
+					context.strokeStyle = '#000000';
+					context.strokeRect(1, 1, theCanvas.width - 2, theCanvas.height - 2);
+					//柱子
+					context.fillStyle = "green";
+					context.beginPath();
+					context.rect(5, 350, 30, 300);
+					context.closePath();
+					context.fill();
+
+					if(hard == true) {
+		
+
+						for(var i = 0; i < bricks.length; i++) {
+							context.fillStyle = bricks[i].color;
+							if(hit_0==1){
+								bricks[0].color="#FFFFFF";
+							}
+							if(hit_1==1){
+								bricks[1].color="#FFFFFF";
+							}
+							context.beginPath();
+							context.rect(theCanvas.width - bricks[i].wid-5, 130 + i *110, bricks[i].wid, bricks[i].hei);
+							context.closePath();
+							context.fill();
+						}
+					}
+
+					//					context.fillStyle = bricks[1].color;
+					//					context.beginPath();
+					//					context.rect(theCanvas.width-bricks[1].wid, 350, bricks[1].wid, bricks[1].hei);
+					//					context.closePath();
+					//					context.fill();
+
+					if(start == true) {
+
+						if(ball.y + ball.radius <= theCanvas.height) {
+							ball.velocityy += gravity;
+						} else {
+							ball.velocityx = 0;
+							ball.velocityy = 0;
+							ball.y = theCanvas.height - ball.radius;
+							if(ball.x + 50 > box.x && ball.x < box.x + box.width + 50) {  //对于球入框的判断
+								hit = 1;//入框
+								start = false;
+							} else {
+								hit = 2;//没入框
+								start = false;
+							}
+//							console.log("ball.x=   " + ball.x);
+//							console.log("box.x=   " + box.x);
+//							console.log("box.width=   " + box.width);
+							//							console.log("box.radius=   "+box.radius);
+
+						}
+
+						ball.y += ball.velocityy;
+						ball.x += ball.velocityx;
+					}
+
+					context.strokeStyle = "red";
+					context.beginPath();
+					context.rect(box.x, box.y, box.width, box.height - 1);
+					context.closePath();
+					context.stroke();
+
+					context.fillStyle = "#000000";
+					context.beginPath();
+					//					context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2, true);
+					context.drawImage(shipImage, 160, 170, 140, 140, ball.x - 35, ball.y - 40, 50, 50);
+					context.closePath();
+					context.fill();
+
+				}
+				var speed = 5.5;
+
+				var gravity = .1;
+				var angle = 450;
+				var radians = angle * Math.PI / 180;
+				var radius = 15;
+				var vx = Math.cos(radians) * speed;
+				var vy = Math.sin(radians) * speed;
+
+//				console.log("spped=5.5,angle=305,win!")
+				theCanvas = document.getElementById('canvasOne');
+				context = theCanvas.getContext('2d');
+
+				var p1 = {
+					x: 20,
+					y: theCanvas.height - radius
+				};
+				var ball = {
+					x: p1.x,
+					y: p1.y - 140,
+					velocityx: vx,
+					velocityy: vy,
+					radius: radius
+				};
+
+				var box = {
+					//					x: 370,
+					x: Math.ceil(Math.random() * 150) + 470,
+					y: 450,
+					height: 50,
+					width: 80
+				};
+				var start = false;
+				gameLoop();
+				var timer;
+				var cont = 0;
+				var xx;
+				var yy;
+
+				function gameLoop() {
+					if(hit == 0) {
+
+						window.setTimeout(gameLoop, 20);
+
+						drawScreen();
+
+						if(hit == 1 ) { //进球了
+							console.log(hit);
+							console.log(score);
+							if(hard==false){
+								score=20;
+							}
+							if(score>=20){
+								alert("恭喜过关~");
+							}
+							else{
+								alert("未过关，再来一次吧!~");
+							}
+							start = false;
+							hit = 0;//回到初始状态
+							bricks[0].color="#763453";
+							bricks[1].color="yellow";
+							cont = 0;
+							 numArrL = []; //初始的X
+			 numArrT = []; //初始de y
+			 hit_0=0;
+			 hit_1=0;
+			
+//			 console.log(hit);
+//			  console.log(score);
+			  
+							clearTimeout(buttimer);
+							//						console.log("1111");
+							 
+							
+
+						}
+						if(hit == 2 ) {//球没进
+							console.log(hit);
+							start = false;
+							hit = 0;
+							bricks[0].color="#763453";
+							bricks[1].color="yellow";
+							cont = 0;
+							 numArrL = []; //初始的X
+				 numArrT = []; //初始de y
+				  hit_0=0;
+			 hit_1=0;
+							clearTimeout(buttimer);
+							//console.log("2222");
+							 
+//			  console.log(score);
+							
+							alert("未过关，再来一次吧!");
+							
+						}
+
+					}
+				}
+
+				document.getElementById("btn").addEventListener("click", function() {
+					start = true;
+
+					handleMouseMove();
+					//					console.log(start);
+
+				}, true);
+				//鼠标进入画布，同步相对角度,画出直线
+
+				document.getElementById("canvasOne").addEventListener("mousemove", function(e) {
+					xx = e.pageX;
+					yy = e.pageY;
+					//					console.log(xx + '---' + yy); 
+
+					context.beginPath();
+					context.strokeStyle = "#222"; //设置线的颜色状态
+					context.moveTo(xx - 50, yy - 50); //设置起点状态
+					context.lineTo(30, 315); //设置末端状态
+					context.lineCap = "round";
+					context.setLineDash([5, 10])
+					context.lineWidth = 3; //设置线宽状态
+					context.stroke();
+					context.closePath();
+
+					//进行绘制
+
+				}, true);
+
+				//按下，计算时间积蓄力量
+				document.getElementById("canvasOne").addEventListener("mousedown", function(e) {
+					xx = e.pageX;
+					yy = e.pageY;
+					context.beginPath();
+					context.strokeStyle = "#222"; //设置线的颜色状态
+					context.moveTo(xx - 50, yy - 50); //设置起点状态
+					context.lineTo(30, 330); //设置末端状态
+					context.lineCap = "round";
+					context.setLineDash([5, 10])
+					context.lineWidth = 3; //设置线宽状态
+					context.stroke();
+					context.closePath();
+					cont = 0;
+					timer = setInterval(function() {
+
+						cont++;
+						$("#cont_num").text(cont);
+						//					 	console.log(cont);
+
+					}, 10);
+
+				}, true);
+				//松开，发射
+				document.getElementById("canvasOne").addEventListener("mouseup", function() {
+
+					clearTimeout(timer);
+
+					
+
+					strengthnum = cont;
+
+					speed = 4 + strengthnum * 0.07;
+					radians = Math.atan((380.0 - yy) / (80.0 - xx));
+					vx = Math.cos(radians) * speed;
+					vy = Math.sin(radians) * speed;
+					ball = {
+						x: p1.x,
+						y: p1.y - 140,
+						velocityx: vx,
+						velocityy: vy,
+						radius: radius
+					};
+//					console.log((380.0 - yy) / (xx - 80.0));
+
+					start = true;
+
+				}, true);
+				
+				$(document).keydown(function() {　　　　
+					if(event.keyCode == 32 && hard==true) {　
+						
+						bullet();
+console.log("enter");
+						　
+					}
+					}
+					)
+
+					　　　　　　　　　
+				
+
+				function handleMouseMove() { //同步两个
+
+					angle = 360 - anglenum;
+					speed = 4 + strengthnum * 0.07;
+					radians = angle * Math.PI / 180;
+					vx = Math.cos(radians) * speed;
+					vy = Math.sin(radians) * speed;
+					ball = {
+						x: p1.x,
+						y: p1.y - 140,
+						velocityx: vx,
+						velocityy: vy,
+						radius: radius
+					};
+
+					//        console.log("angle="+angle)
+					//					console.log(strengthnum);
+				};
+				anglerange.onmousemove = function() {
+					//	console.log("1111");
+					anglenum = document.getElementById("angle").value;
+					document.getElementById("newangle").innerText = anglenum + "°";
+				};
+
+				strgrange.onmousemove = function() {
+					//						console.log("1111");
+					strengthnum = document.getElementById("strength").value;
+					document.getElementById("newstr").innerText = strengthnum;
+				};
+
+				var colorArr = ["red", "pink", "orange","cornflowerblue","powderblue"];
+				var textArr = [
+				"砖块我来啦",
+					"我是测试弹幕",
+					"你呢2号",
+					"3号我也是",
+					"一共5个砖块"
+
+				];
+				var barSpeed = [9, 9, 9,9,9];
+				var barStyle = ["italic", "normal", "oblique","normal","normal"];
+				var barSize = ["20", "30", "25","20","20"];
+				var numArrL = []; //初始的X
+				var numArrT = []; //初始de y
+				var score=20;
+				var hit_over=false;
+				var hit_brick=false;
+				var hit_0=0;
+				var hit_1=0;
+				function bullet(e) {
+
+					numArrL.push(ball.x);
+					numArrT.push(ball.y);
+					 buttimer = setInterval(function() {
+					//				context.clearRect(0, 0, theCanvas.width, theCanvas.height);
+					
+					context.save();
+					for(var j = 0; j < numArrL.length; j++) {
+
+						context.font = barSize[j] + "px " + barStyle[j];
+						numArrL[j] += barSpeed[j];
+//						 console.log(numArrL[j]);
+						context.fillStyle = colorArr[j]
+						context.fillText(textArr[j], numArrL[j], numArrT[j]);
+				
+					}
+					for(var i = 0; i < textArr.length; i++) {
+						if(numArrL[i] >= 1400) {
+							numArrL[i] = theCanvas.width;
+							hit_over=true;
+						}
+					}
+					context.restore();
+					
+					for(var j = 0; j < numArrL.length; j++) {
+//							console.log("numArrT[j] = "+numArrT[j]);
+//							console.log("bricks[0].y = "+bricks[0].y);
+//							console.log("bricks[0].hei = "+bricks[0].hei);
+//console.log("numArrL[j] = "+numArrL[j]);
+//console.log("measureText = "+context.measureText(textArr[j]).width);
+//console.log("theCanvas.width = "+theCanvas.width);
+//console.log("bricks[0].wid = "+bricks[0].wid);
+					if (numArrT[j]+100 > bricks[0].y && numArrT[j]<bricks[0].y+bricks[0].hei-30 &&
+						numArrL[j]+context.measureText(textArr[j]).width>theCanvas.width-bricks[0].wid-5) {
+//							console.log("measureText = "+context.measureText(textArr[j]).width);
+							hit_brick=true;
+						hit_0=1;
+							console.log("hit_0=   "+hit_0);
+						} 
+					if (
+					numArrT[j]+100 >bricks[1].y && numArrT[j]<bricks[1].y+bricks[1].hei &&
+						numArrL[j]+context.measureText(textArr[j]).width>theCanvas.width-bricks[1].wid-5) {
+							hit_brick=true;
+							hit_1=1;
+//							console.log("hit_1=   "+hit_1);
+						} 
+
+				}
+					
+						
+					
+					
+					
+				}, 10)
+					
+//					console.log(textArr);
+					
+}
+				
+
+			}
+		</script>
+
+	</head>
+
+	<body>
+		<p style="font-size: 20px;margin-left: 200px;">愤怒的小鸟与开心的弹幕</p>
+		<div style="position: absolute; top: 50px; left: 50px;">
+
+			<canvas id="canvasOne" width="1200" height="500">
+ Your browser does not support the HTML 5 Canvas. 
+</canvas>
+
+		</div>
+		<div style="position: absolute; top: 50px; left: 60px;" id="set_one">
+			angle<input type="range" id="angle" min="-45" max="45" value="-45" />左边为负，右边为正.向上为正，向下为负
+			<br /> strength
+			<input type="range" id="strength" min="1" max="100" value="1" step="5" />
+			<br /> 当前的角度为 <span id="newangle" style="color: brown;font-size: 28px;">
+		
+	</span>
+			<br /> 当前的力度为 <span id="newstr" style="color: brown;font-size: 28px;">
+		
+	</span>
+			<br />
+			<input type="button" value="shoot" id="btn" /> （秘籍：角度为35，力度为71）
+		</div>
+		<div>
+			<input type="button" name="game_one" id="game_one" value="进阶模式" />
+			<input type="button" name="game_one" id="game_two" value="超困难模式" />
+
+		</div>
+		<div id="note">
+			<div id="note_one">
+				<em>进阶指南：</em><br /> 1.鼠标移入画布，长按左键积蓄力量，松开后可发射小鸟。
+				<br /> 2.可以多次发射，刷新则改变目标方块位置。击中地上的盒子可过关。
+				<br />
+			</div>
+			<div id="cont_num">
+				0
+			</div>
+			<div id="note_two">
+				<em>困难指南：</em><br /> 1.在(开心的)小鸟飞的过程中，按下空格键可以发送（愤怒的）弹幕 <br /> 2.您有5个弹幕，每击中一个砖块得10分 <br /> 3.击中地上的盒子同时得分≥20才算过关 <br />
+
+			</div>
+			<span id="score">
+					您的得分为 <b>0</b>分
+				</span>
+		</div>
+		<div id="progress" style="position: absolute; top: 530px; left: 660px;">
+			<p style="font-size: 18px;">
+				提高的要点:
+			</p>
+			<p>
+				1.在原来input输入、range调整参数的基础上，加入了<b>鼠标控制</b>  <br />
+				2.通过鼠标改变<b>方向</b>和 <b>力度</b>，同时实现<b>角度的可视化</b> <br />
+				3.目标方块每次刷新会<b>移动位置</b>，增加游戏难度 <br />
+				4.新增<b>困难模式</b>，与<b>弹幕</b>元素和<b>打砖块</b>元素结合 <br />
+				5.增加弹幕与砖块的<b>碰撞检测</b>，<b>实时反馈</b>至右上角的分数上 <br />
+				6.必须同时达到<b>击中盒子</b>和<b>分数达标</b>这两个要求才能通过，进行情况分类判定 <br />
+				7.<b>不用刷新</b>即可再次发射小鸟 <br />
+				8.考虑到力道随时间增长较快，<b>放宽了边界检测的范围</b>，能够更容易地通关
+				
+			</p>
+		</div>
+
+	</body>
+	<style type="text/css">
+	.wight{
+		font-weight: bold;
+	}
+		#score {
+			font-size: 40px;
+			margin-top: 60px;
+			margin-left: 900px;
+			position: absolute;
+			color: red;
+		}
+		
+		#cont_num {
+			background-color: beige;
+			width: 36px;
+			height: 36px;
+			font-size: 36px;
+			margin-top: 120px;
+			margin-left: 340px;
+			position: absolute;
+		}
+		
+		#note_one {
+			position: absolute;
+			top: 550px;
+			left: 60px;
+		}
+		
+		#note_two {
+			position: absolute;
+			top: 550px;
+			left: 60px;
+		}
+		
+		#game_one {
+			background-color: wheat;
+			width: 80px;
+			height: 40px;
+			margin-right: 80px;
+			float: right;
+			margin-top: 80px;
+		}
+		
+		#game_two {
+			background-color: wheat;
+			width: 80px;
+			height: 40px;
+			margin-right: -80px;
+			float: right;
+			margin-top: 180px;
+		}
+		
+		button,
+		input,
+		select,
+		textarea
+		/* for ie */
+		
+		{
+			font: 14px/1.5 tahoma, \5b8b\4f53, sans-serif;
+		}
+	</style>
+
+</html>
